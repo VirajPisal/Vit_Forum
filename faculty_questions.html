@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Questions - VIT Academic Portal</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Simple VIT Color Variables */
+        :root {
+            --vit-blue: #1e3a8a;
+            --vit-light-blue: #3b82f6;
+            --vit-orange: #f97316;
+            --vit-gold: #fbbf24;
+            --vit-green: #10b981;
+            --vit-red: #ef4444;
+        }
+
+        /* Background */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--vit-blue) 0%, var(--vit-light-blue) 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        /* Main Container */
+        .faculty-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header Section */
+        .faculty-header {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: slideDown 0.8s ease;
+        }
+
+        .header-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--vit-green), #34d399);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        .faculty-title {
+            color: var(--vit-blue);
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .faculty-subtitle {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        /* Question Card */
+        .question-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: none;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.6s ease;
+            position: relative;
+        }
+
+        .question-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Question Header */
+        .question-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .question-id {
+            background: linear-gradient(135deg, var(--vit-blue), var(--vit-light-blue));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .subject-badge {
+            background: linear-gradient(135deg, var(--vit-orange), var(--vit-gold));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* Question Content */
+        .question-title {
+            color: var(--vit-blue);
+            font-weight: 600;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .question-description {
+            color: #4b5563;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 4px solid var(--vit-light-blue);
+        }
+
+        /* Answer Form */
+        .answer-form {
+            background: #f0fdf4;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid #bbf7d0;
+            margin-top: 1rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--vit-green);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-control {
+            border: 2px solid #d1fae5;
+            border-radius: 10px;
+            padding: 1rem;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.3s ease;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-control:focus {
+            border-color: var(--vit-green);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+            outline: none;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            background: linear-gradient(135deg, var(--vit-green), #34d399);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+            color: white;
+        }
+
+        /* Already Answered */
+        .answered-section {
+            background: #ecfdf5;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid #34d399;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .answered-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--vit-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .answered-text {
+            color: var(--vit-green);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* No Questions */
+        .no-questions {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-questions-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #d1d5db, #9ca3af);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2.5rem;
+        }
+
+        /* Character Counter */
+        .char-counter {
+            font-size: 0.875rem;
+            color: #6b7280;
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+
+        .status-unanswered {
+            background: var(--vit-orange);
+        }
+
+        .status-answered {
+            background: var(--vit-green);
+        }
+
+        /* Simple Animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes blink {
+            0%, 50% {
+                opacity: 1;
+            }
+            51%, 100% {
+                opacity: 0.3;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .faculty-container {
+                padding: 0 10px;
+            }
+            
+            .question-card {
+                padding: 1.5rem;
+            }
+            
+            .faculty-header {
+                padding: 1.5rem;
+            }
+            
+            .faculty-title {
+                font-size: 1.75rem;
+            }
+            
+            .question-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* Loading State */
+        .btn-submit.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .btn-submit.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="faculty-container">
+
+        <!-- Header Section -->
+        <div class="faculty-header">
+            <div class="header-icon">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <h1 class="faculty-title">👨‍🏫 Faculty Question Hub</h1>
+            <p class="faculty-subtitle">Help students succeed by sharing your expertise and knowledge!</p>
+        </div>
+
+        <!-- Questions List -->
+        {% if questions %}
+            {% for q in questions %}
+            <div class="question-card">
+                
+                <!-- Status Indicator -->
+                <div class="status-indicator {{ 'status-answered' if q.is_answered else 'status-unanswered' }}"></div>
+                
+                <!-- Question Header -->
+                <div class="question-header">
+                    <div class="question-id">
+                        <i class="fas fa-hashtag me-1"></i>
+                        Question {{ q.question_ID }}
+                    </div>
+                    <div class="subject-badge">
+                        <i class="fas fa-book me-1"></i>
+                        Subject: {{ q.subject_ID }}
+                    </div>
+                </div>
+
+                <!-- Question Title -->
+                <h3 class="question-title">
+                    <i class="fas fa-question-circle" style="color: var(--vit-orange);"></i>
+                    {{ q.title }}
+                </h3>
+
+                <!-- Question Description -->
+                <div class="question-description">
+                    <i class="fas fa-quote-left" style="color: var(--vit-light-blue); margin-right: 0.5rem;"></i>
+                    {{ q.description }}
+                </div>
+
+                <!-- Answer Section -->
+                {% if not q.is_answered %}
+                    <div class="answer-form">
+                        <label class="form-label">
+                            <i class="fas fa-pen"></i>
+                            Your Expert Answer
+                        </label>
+                        <form method="POST" class="answer-form-element">
+                            <input type="hidden" name="question_id" value="{{ q.question_ID }}">
+                            
+                            <textarea 
+                                name="answer_text" 
+                                class="form-control" 
+                                rows="4"
+                                placeholder="Share your knowledge and help the student understand the concept clearly..."
+                                required
+                                maxlength="1000"
+                                id="answer-{{ q.question_ID }}"
+                            ></textarea>
+                            
+                            <div class="char-counter">
+                                <span id="counter-{{ q.question_ID }}">0</span>/1000 characters
+                            </div>
+                            
+                            <button type="submit" class="btn-submit">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Submit Answer 🎯
+                            </button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="answered-section">
+                        <div class="answered-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="answered-text">
+                            <i class="fas fa-medal me-2"></i>
+                            Question Successfully Answered! ✅
+                        </div>
+                        <p style="color: #059669; margin-top: 0.5rem; margin-bottom: 0;">
+                            Great job helping a student learn! 🌟
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- No Questions State -->
+            <div class="no-questions">
+                <div class="no-questions-icon">
+                    <i class="fas fa-clipboard-question"></i>
+                </div>
+                <h3 style="color: var(--vit-blue); font-weight: 600;">No Questions Available</h3>
+                <p style="color: #6b7280; font-size: 1.1rem;">
+                    No student questions found for your subjects at the moment. 
+                    Check back later! 📚
+                </p>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Character counters for textareas
+        document.querySelectorAll('textarea[id^="answer-"]').forEach(textarea => {
+            const questionId = textarea.id.split('-')[1];
+            const counter = document.getElementById(`counter-${questionId}`);
+            
+            textarea.addEventListener('input', function() {
+                counter.textContent = this.value.length;
+                
+                // Change color based on usage
+                const percentage = (this.value.length / this.maxLength) * 100;
+                if (percentage > 90) {
+                    counter.style.color = '#ef4444';
+                } else if (percentage > 70) {
+                    counter.style.color = '#f59e0b';
+                } else {
+                    counter.style.color = '#6b7280';
+                }
+            });
+        });
+
+        // Form submission with loading state
+        document.querySelectorAll('.answer-form-element').forEach(form => {
+            form.addEventListener('submit', function() {
+                const btn = this.querySelector('.btn-submit');
+                btn.classList.add('loading');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting Answer...';
+            });
+        });
+
+        // Auto-resize textareas
+        document.querySelectorAll('textarea').forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.max(100, this.scrollHeight) + 'px';
+            });
+        });
+
+        // Simple card animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.question-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+
+        // Hover effects
+        document.querySelectorAll('.question-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+
+</body>
+</html>

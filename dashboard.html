@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIT Academic Dashboard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Simple CSS Variables for VIT Colors */
+        :root {
+            --vit-blue: #1e3a8a;
+            --vit-light-blue: #3b82f6;
+            --vit-orange: #f97316;
+            --vit-gold: #fbbf24;
+        }
+
+        /* Basic Body Styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--vit-blue) 0%, var(--vit-light-blue) 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        /* Dashboard Container */
+        .dashboard-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header Card */
+        .header-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border: none;
+        }
+
+        /* VIT Logo */
+        .vit-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--vit-blue), var(--vit-light-blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 2rem;
+        }
+
+        /* Welcome Text */
+        .welcome-title {
+            color: var(--vit-blue);
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-info {
+            color: #6b7280;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .reputation-badge {
+            background: linear-gradient(135deg, var(--vit-orange), var(--vit-gold));
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            display: inline-block;
+            margin: 1rem 0;
+        }
+
+        /* Action Cards Container */
+        .actions-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Action Cards */
+        .action-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Card Icons */
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        /* Different colored icons */
+        .icon-primary {
+            background: linear-gradient(135deg, var(--vit-blue), var(--vit-light-blue));
+        }
+
+        .icon-success {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+
+        .icon-info {
+            background: linear-gradient(135deg, #06b6d4, #67e8f9);
+        }
+
+        .icon-warning {
+            background: linear-gradient(135deg, var(--vit-orange), var(--vit-gold));
+        }
+
+        /* Card Titles */
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--vit-blue);
+            margin-bottom: 1rem;
+        }
+
+        /* Card Descriptions */
+        .card-description {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        /* Buttons */
+        .btn-custom {
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--vit-blue), var(--vit-light-blue));
+            color: white;
+        }
+
+        .btn-success-custom {
+            background: linear-gradient(135deg, #10b981, #34d399);
+            color: white;
+        }
+
+        .btn-info-custom {
+            background: linear-gradient(135deg, #06b6d4, #67e8f9);
+            color: white;
+        }
+
+        .btn-danger-custom {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            color: white;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 2rem;
+        }
+
+        .alert {
+            border-radius: 15px;
+            border: none;
+            padding: 1rem 1.5rem;
+        }
+
+        /* Logout Section */
+        .logout-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .actions-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-title {
+                font-size: 1.5rem;
+            }
+            
+            .header-card {
+                padding: 1.5rem;
+            }
+            
+            .action-card {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Simple Animation */
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages fade-in">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Header Section -->
+        <div class="header-card fade-in">
+            <div class="vit-logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1 class="welcome-title">Welcome, {{ user.username }}! 🎉</h1>
+            <p class="user-info">
+                <i class="fas fa-user-tag me-2"></i>{{ user.role.title() }} | 
+                <i class="fas fa-building me-2"></i>Department: {{ user.department_ID }}
+            </p>
+            <div class="reputation-badge">
+                <i class="fas fa-star me-2"></i>{{ user.reputation_points }} Reputation Points
+            </div>
+        </div>
+
+        <!-- Action Cards -->
+        <div class="actions-container">
+
+            <!-- Student Actions -->
+            {% if user.role == 'student' %}
+            
+            <!-- Ask Question Card -->
+            <div class="action-card fade-in">
+                <div class="card-icon icon-primary">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <h3 class="card-title">Ask a Question</h3>
+                <p class="card-description">
+                    Got a doubt? Post your questions and get help from faculty and peers!
+                </p>
+                <a href="{{ url_for('ask_question') }}" class="btn-custom btn-primary-custom">
+                    <i class="fas fa-plus me-2"></i>Ask Question
+                </a>
+            </div>
+
+            <!-- My Questions Card -->
+            <div class="action-card fade-in">
+                <div class="card-icon icon-info">
+                    <i class="fas fa-list-ul"></i>
+                </div>
+                <h3 class="card-title">My Questions</h3>
+                <p class="card-description">
+                    View all your questions and track the answers you've received.
+                </p>
+                <a href="{{ url_for('my_questions') }}" class="btn-custom btn-info-custom">
+                    <i class="fas fa-eye me-2"></i>View Questions
+                </a>
+            </div>
+
+            {% endif %}
+
+            <!-- Faculty Actions -->
+            {% if user.role == 'faculty' %}
+            
+            <!-- View Questions Card -->
+            <div class="action-card fade-in">
+                <div class="card-icon icon-success">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <h3 class="card-title">Student Questions</h3>
+                <p class="card-description">
+                    Help students by answering their questions in your subject area.
+                </p>
+                <a href="{{ url_for('faculty_questions') }}" class="btn-custom btn-success-custom">
+                    <i class="fas fa-comments me-2"></i>Answer Questions
+                </a>
+            </div>
+
+            {% endif %}
+
+        </div>
+
+        <!-- Logout Section -->
+        <div class="logout-card fade-in">
+            <h4 style="color: var(--vit-blue); margin-bottom: 1rem;">
+                <i class="fas fa-sign-out-alt me-2"></i>Ready to Leave?
+            </h4>
+            <a href="{{ url_for('logout') }}" class="btn-custom btn-danger-custom">
+                <i class="fas fa-power-off me-2"></i>Logout Safely
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Simple animation on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add staggered animation to cards
+            const cards = document.querySelectorAll('.action-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.2}s`;
+            });
+        });
+
+        // Simple hover effects
+        document.querySelectorAll('.action-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+
+</body>
+</html>
