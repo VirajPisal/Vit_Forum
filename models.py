@@ -7,6 +7,7 @@ db = SQLAlchemy()
 # ---------------------------
 # 1. User Table
 # ---------------------------
+
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
 
@@ -24,6 +25,26 @@ class User(db.Model, UserMixin):
 
     def get_id(self):
         return str(self.user_ID)
+
+
+
+# class User(db.Model, UserMixin):
+#     __tablename__ = 'user'
+
+#     user_ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     username = db.Column(db.String(50), unique=True, nullable=False)
+#     password_hash = db.Column(db.String(255), nullable=False)
+#     role = db.Column(db.Enum('student', 'faculty', 'admin'), nullable=False)
+#     department_ID = db.Column(db.Integer, db.ForeignKey('department.department_ID'), nullable=True)
+#     reputation_points = db.Column(db.Integer, default=0)
+
+#     # Relationships
+#     questions = db.relationship('Question', backref='user', lazy=True, foreign_keys="Question.student_ID")
+#     answers = db.relationship('Answer', backref='faculty_user', lazy=True, foreign_keys="Answer.faculty_ID")
+#     faculty_subjects = db.relationship('FacultySubject', backref='faculty', lazy=True)
+
+#     def get_id(self):
+#         return str(self.user_ID)
 
 # ---------------------------
 # 2. Department Table
