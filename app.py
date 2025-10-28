@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from models import db, User, Department, Subject, Question, Answer, Announcement, Upvote, FacultySubject
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -116,6 +116,24 @@ def logout():
 def dashboard():
     return render_template('dashboard.html', user=current_user)
 
+# @app.route('/dashboard')
+# @login_required
+# def dashboard():
+#     if current_user.role == 'student':
+#         questions = Question.query.order_by(Question.created_at.desc()).all()
+#         return render_template('student_dashboard.html', questions=questions)
+    
+#     elif current_user.role == 'faculty':
+#         subject_ids = [fs.subject_ID for fs in FacultySubject.query.filter_by(faculty_ID=current_user.user_ID).all()]
+#         questions = Question.query.filter(Question.subject_ID.in_(subject_ids)).order_by(Question.created_at.desc()).all()
+#         return render_template('faculty_dashboard.html', questions=questions)
+    
+#     else:
+#         flash("Access denied.", "danger")
+#         return redirect(url_for('home'))
+
+
+
 # ---------- ASK A QUESTION ----------
 @app.route('/ask_question', methods=['GET', 'POST'])
 @login_required
@@ -145,35 +163,6 @@ def ask_question():
 
 
 # ---------- FACULTY: VIEW & ANSWER QUESTIONS ----------
-# @app.route('/faculty/questions', methods=['GET', 'POST'])
-# @login_required
-# def faculty_questions():
-#     if current_user.role != 'faculty':
-#         flash("Access denied! Faculty only.", "danger")
-#         return redirect(url_for('dashboard'))
-
-#     subject_ids = [fs.subject_ID for fs in FacultySubject.query.filter_by(faculty_ID=current_user.user_ID).all()]
-#     questions = Question.query.filter(Question.subject_ID.in_(subject_ids)).all()
-
-#     if request.method == 'POST':
-#         question_id = int(request.form['question_id'])
-#         answer_text = request.form['answer_text']
-
-#         new_answer = Answer(
-#             question_ID=question_id,
-#             faculty_ID=current_user.user_ID,
-#             content=answer_text
-#         )
-#         db.session.add(new_answer)
-
-#         q = Question.query.get(question_id)
-#         q.is_answered = True
-#         db.session.commit()
-
-#         flash("Answer submitted successfully ✅", "success")
-#         return redirect(url_for('faculty_questions'))
-
-#     return render_template('faculty_questions.html', questions=questions)
 
 @app.route('/faculty/questions', methods=['GET', 'POST'])
 @login_required
@@ -221,6 +210,24 @@ def faculty_questions():
     )
 
 
+@app.route('/faculty/dashboard')
+@login_required
+def faculty_dashboard():
+    if current_user.role != 'faculty':
+        flash("Access denied.", "danger")
+        return redirect(url_for('dashboard'))
+
+    subject_ids = [fs.subject_ID for fs in FacultySubject.query.filter_by(faculty_ID=current_user.user_ID).all()]
+    questions = Question.query.filter(Question.subject_ID.in_(subject_ids)).all()
+
+    # Fetch department announcements for this faculty
+    announcements = []
+    if current_user.department_ID:
+        announcements = Announcement.query.filter_by(department_ID=current_user.department_ID).order_by(Announcement.created_at.desc()).all()
+
+    return render_template("faculty_dashboard.html", questions=questions, announcements=announcements)
+
+
 # ---------- STUDENT: VIEW ONLY THEIR OWN QUESTIONS ----------
 @app.route('/my_questions')
 @login_required
@@ -242,20 +249,11 @@ def all_questions():
         return redirect(url_for('dashboard'))
 
     questions = Question.query.order_by(Question.created_at.desc()).all()
-    return render_template('all_questions.html', questions=questions)
+    # compute upvote counts per answer
+    from sqlalchemy import func
+    upvote_counts = dict(db.session.query(Upvote.answer_ID, func.count(Upvote.upvote_ID)).group_by(Upvote.answer_ID).all())
 
-# ----------------- Faculty Dashboard -----------------
-@app.route('/faculty/dashboard')
-@login_required
-def faculty_dashboard():
-    if current_user.role != 'faculty':
-        flash("Access denied.", "danger")
-        return redirect(url_for('dashboard'))
-
-    subject_ids = [fs.subject_ID for fs in FacultySubject.query.filter_by(faculty_ID=current_user.user_ID).all()]
-    questions = Question.query.filter(Question.subject_ID.in_(subject_ids)).all()
-    return render_template("faculty_dashboard.html", questions=questions)
-
+    return render_template('all_questions.html', questions=questions, upvote_counts=upvote_counts)
 
 
 
@@ -286,49 +284,156 @@ def answer_question(question_id):
 
 
 # ----------------upvote route---------------
+
+
+# @app.route('/upvote/<int:answer_id>', methods=['POST'])
 @app.route('/upvote/<int:answer_id>', methods=['POST'])
+@login_required
 def upvote(answer_id):
-    if 'user_id' not in session:  
-        return redirect(url_for('login'))
+    # Simple upvote using Upvote table; return JSON for AJAX calls
+    if current_user.role != 'student':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=False, message='Only students can upvote'), 403
+        flash("Only students can upvote!", "danger")
+        return redirect(request.referrer or url_for('all_questions'))
 
     answer = Answer.query.get_or_404(answer_id)
-    user_id = session['user_id']
+    existing_vote = Upvote.query.filter_by(user_ID=current_user.user_ID, answer_ID=answer_id).first()
 
-    # Check if already voted
-    existing_vote = Vote.query.filter_by(user_ID=user_id, answer_ID=answer_id).first()
     if existing_vote:
-        if existing_vote.vote_type != 'upvote':
-            existing_vote.vote_type = 'upvote'
-    else:
-        new_vote = Vote(user_ID=user_id, answer_ID=answer_id, vote_type='upvote')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=False, message='Already upvoted')
+        flash("You already upvoted this answer.", "info")
+        return redirect(request.referrer or url_for('all_questions'))
+
+    try:
+        # Add new upvote
+        new_vote = Upvote(answer_ID=answer_id, user_ID=current_user.user_ID)
         db.session.add(new_vote)
 
-    db.session.commit()
-    return redirect(request.referrer)
+        # Increase faculty’s reputation points
+        faculty = User.query.get(answer.faculty_ID)
+        faculty.reputation_points = (faculty.reputation_points or 0) + 10   # 10 points per upvote
+
+        db.session.commit()
+
+        # compute new upvote count
+        from sqlalchemy import func
+        new_count = db.session.query(func.count(Upvote.upvote_ID)).filter_by(answer_ID=answer_id).scalar() or 0
+
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=True, count=new_count)
+
+        flash("Upvoted successfully!", "success")
+    except Exception as e:
+        db.session.rollback()
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(success=False, message=str(e)), 500
+        flash(f"Error recording upvote: {e}", "danger")
+
+    return redirect(request.referrer or url_for('all_questions'))
+
+@app.route('/leaderboard')
+@login_required
+def leaderboard():
+    faculties = User.query.filter_by(role='faculty').order_by(User.reputation_points.desc()).all()
+    return render_template('leaderboard.html', faculties=faculties)
 
 
-@app.route('/downvote/<int:answer_id>', methods=['POST'])
-def downvote(answer_id):
-    if 'user_id' not in session:  
-        return redirect(url_for('login'))
+# ------------Route for Faculty to Post Announcements
+@app.route('/faculty/announcement', methods=['GET', 'POST'])
+@login_required
+def post_announcement():
+    if current_user.role != 'faculty':
+        flash("Access denied! Faculty only.", "danger")
+        return redirect(url_for('dashboard'))
 
-    answer = Answer.query.get_or_404(answer_id)
-    user_id = session['user_id']
+    if request.method == 'POST':
+        title = request.form.get('title')
+        content = request.form.get('content')
+        if not title or not content:
+            flash('Title and content are required.', 'warning')
+            return redirect(url_for('post_announcement'))
 
-    # Check if already voted
-    existing_vote = Vote.query.filter_by(user_ID=user_id, answer_ID=answer_id).first()
-    if existing_vote:
-        if existing_vote.vote_type != 'downvote':
-            existing_vote.vote_type = 'downvote'
-    else:
-        new_vote = Vote(user_ID=user_id, answer_ID=answer_id, vote_type='downvote')
-        db.session.add(new_vote)
+        if not current_user.department_ID:
+            flash('Cannot post announcement: your account has no department set. Contact admin.', 'danger')
+            return redirect(url_for('post_announcement'))
 
-    db.session.commit()
-    return redirect(request.referrer)
+        try:
+            app.logger.info(f"Posting announcement by user {current_user.user_ID} dept {current_user.department_ID}: {title}")
+            new_announcement = Announcement(
+                faculty_ID=current_user.user_ID,
+                department_ID=current_user.department_ID,
+                title=title,
+                content=content
+            )
+            db.session.add(new_announcement)
+            db.session.commit()
+            flash('Announcement posted successfully!', 'success')
+            # Redirect to faculty dashboard so announcement is visible immediately
+            return redirect(url_for('faculty_dashboard'))
+        except Exception as e:
+            db.session.rollback()
+            app.logger.exception('Error posting announcement')
+            flash(f'Error posting announcement: {e}', 'danger')
 
+        return redirect(url_for('post_announcement'))
+
+    announcements = Announcement.query.filter_by(department_ID=current_user.department_ID).order_by(Announcement.created_at.desc()).all()
+    return render_template('faculty_announcement.html', announcements=announcements)
+
+
+# -------------Student View Route(announcements)------------
+@app.route('/announcements')
+@login_required
+def announcements():
+    # Students see announcements for their department only. Faculty see theirs as well.
+    dept_id = current_user.department_ID
+    announcements = Announcement.query.filter_by(department_ID=dept_id).order_by(Announcement.created_at.desc()).all()
+    return render_template('announcement.html', announcements=announcements)
+
+
+# # ------------Route for Faculty to Post Announcements
+
+# @app.route('/faculty/announcement', methods=['GET', 'POST'])
+# @login_required
+# def post_announcement():
+#     if current_user.role != 'faculty':
+#         flash("Access denied!", "danger")
+#         return redirect(url_for('dashboard'))
+
+#     if request.method == 'POST':
+#         title = request.form['title']
+#         content = request.form['content']
+#         new_announcement = Announcement(
+#             faculty_ID=current_user.user_ID,
+#             department_ID=current_user.department_ID,
+#             title=title,
+#             content=content
+#         )
+#         db.session.add(new_announcement)
+#         db.session.commit()
+#         flash("Announcement posted successfully!", "success")
+#         return redirect(url_for('post_announcement'))
+
+#     announcements = Announcement.query.filter_by(department_ID=current_user.department_ID).order_by(Announcement.created_at.desc()).all()
+#     return render_template('faculty_announcement.html', announcements=announcements)
+
+
+# # -------------Student View Route(announcements)------------
+# @app.route('/announcements')
+# @login_required
+# def announcements():
+#     announcements = Announcement.query.order_by(Announcement.created_at.desc()).all()
+#     return render_template('announcements.html', announcements=announcements)
 
 
 # ----------------- Run App -----------------
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+
+
+
