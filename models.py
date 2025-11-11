@@ -27,25 +27,6 @@ class User(db.Model, UserMixin):
         return str(self.user_ID)
 
 
-
-# class User(db.Model, UserMixin):
-#     __tablename__ = 'user'
-
-#     user_ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     username = db.Column(db.String(50), unique=True, nullable=False)
-#     password_hash = db.Column(db.String(255), nullable=False)
-#     role = db.Column(db.Enum('student', 'faculty', 'admin'), nullable=False)
-#     department_ID = db.Column(db.Integer, db.ForeignKey('department.department_ID'), nullable=True)
-#     reputation_points = db.Column(db.Integer, default=0)
-
-#     # Relationships
-#     questions = db.relationship('Question', backref='user', lazy=True, foreign_keys="Question.student_ID")
-#     answers = db.relationship('Answer', backref='faculty_user', lazy=True, foreign_keys="Answer.faculty_ID")
-#     faculty_subjects = db.relationship('FacultySubject', backref='faculty', lazy=True)
-
-#     def get_id(self):
-#         return str(self.user_ID)
-
 # ---------------------------
 # 2. Department Table
 # ---------------------------
@@ -96,22 +77,7 @@ class Question(db.Model):
     answers = db.relationship('Answer', backref='question', lazy=True)
 
 
-# class Question(db.Model):
-#     __tablename__ = 'question'
 
-#     question_ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     title = db.Column(db.String(255), nullable=False)
-#     description = db.Column(db.Text, nullable=False)
-#     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-#     # Foreign Keys
-#     user_ID = db.Column(db.Integer, db.ForeignKey('user.user_ID'), nullable=False)   # ✅ FIXED
-#     subject_ID = db.Column(db.Integer, db.ForeignKey('subject.subject_ID'), nullable=False)
-
-#     is_answered = db.Column(db.Boolean, default=False)
-
-#     # Relationships
-#     answers = db.relationship('Answer', backref='question', lazy=True)
 
 # ---------------------------
 # 5. Answer Table
@@ -125,23 +91,6 @@ class Answer(db.Model):
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-# class Answer(db.Model):
-#     __tablename__ = 'answer'
-#     answer_ID = db.Column(db.Integer, primary_key=True)
-#     content = db.Column(db.Text, nullable=False)
-#     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-#     question_ID = db.Column(db.Integer, db.ForeignKey('question.question_ID'), nullable=False)
-#     user_ID = db.Column(db.Integer, db.ForeignKey('user.user_ID'), nullable=False)
-
-#     votes = db.relationship('Vote', backref='answer', lazy=True)
-
-#     @property
-#     def upvotes(self):
-#         return [v for v in self.votes if v.vote_type == 'upvote']
-
-#     @property
-#     def downvotes(self):
-#         return [v for v in self.votes if v.vote_type == 'downvote']
 
 
 class Vote(db.Model):
@@ -164,6 +113,10 @@ class Announcement(db.Model):
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    # Relationships for easier template access
+    faculty = db.relationship('User', backref='announcements', foreign_keys=[faculty_ID])
+    department = db.relationship('Department', backref='announcements', foreign_keys=[department_ID])
+
 # ---------------------------
 # 7. Upvote Table
 # ---------------------------
@@ -183,10 +136,3 @@ class FacultySubject(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     faculty_ID = db.Column(db.Integer, db.ForeignKey('user.user_ID'), nullable=False)
     subject_ID = db.Column(db.Integer, db.ForeignKey('subject.subject_ID'), nullable=False)
-
-
-
-
-
-
-
