@@ -27,11 +27,7 @@ def load_user(user_id):
 with app.app_context():
     db.create_all()
 
-# ------------------ Routes ------------------
-
-# @app.route('/')
-# def home():
-#     return "Database connected successfully!"
+# ------------------ Routes -----------------
 
 @app.route('/')
 def home():
@@ -114,23 +110,12 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', user=current_user)
+    # If faculty, include top faculty for leaderboard preview on dashboard
+    top_faculty = None
+    if current_user.is_authenticated and getattr(current_user, 'role', None) == 'faculty':
+        top_faculty = User.query.filter_by(role='faculty').order_by(User.reputation_points.desc()).limit(5).all()
+    return render_template('dashboard.html', user=current_user, top_faculty=top_faculty)
 
-# @app.route('/dashboard')
-# @login_required
-# def dashboard():
-#     if current_user.role == 'student':
-#         questions = Question.query.order_by(Question.created_at.desc()).all()
-#         return render_template('student_dashboard.html', questions=questions)
-    
-#     elif current_user.role == 'faculty':
-#         subject_ids = [fs.subject_ID for fs in FacultySubject.query.filter_by(faculty_ID=current_user.user_ID).all()]
-#         questions = Question.query.filter(Question.subject_ID.in_(subject_ids)).order_by(Question.created_at.desc()).all()
-#         return render_template('faculty_dashboard.html', questions=questions)
-    
-#     else:
-#         flash("Access denied.", "danger")
-#         return redirect(url_for('home'))
 
 
 
@@ -210,12 +195,41 @@ def faculty_questions():
     )
 
 
-@app.route('/faculty/dashboard')
+@app.route('/faculty/dashboard', methods=['GET', 'POST'])
 @login_required
 def faculty_dashboard():
     if current_user.role != 'faculty':
         flash("Access denied.", "danger")
         return redirect(url_for('dashboard'))
+
+    # Allow faculty to post an announcement directly from their dashboard
+    if request.method == 'POST':
+        title = request.form.get('title')
+        content = request.form.get('content')
+        if not title or not content:
+            flash('Title and content are required to post an announcement.', 'warning')
+            return redirect(url_for('faculty_dashboard'))
+
+        if not current_user.department_ID:
+            flash('Cannot post announcement: your account has no department set. Contact admin.', 'danger')
+            return redirect(url_for('faculty_dashboard'))
+
+        try:
+            app.logger.info(f"Posting announcement from dashboard by user {current_user.user_ID} dept {current_user.department_ID}: {title}")
+            new_announcement = Announcement(
+                faculty_ID=current_user.user_ID,
+                department_ID=current_user.department_ID,
+                title=title,
+                content=content
+            )
+            db.session.add(new_announcement)
+            db.session.commit()
+            flash('Announcement posted successfully!', 'success')
+            return redirect(url_for('faculty_dashboard'))
+        except Exception as e:
+            db.session.rollback()
+            app.logger.exception('Error posting announcement from dashboard')
+            flash(f'Error posting announcement: {e}', 'danger')
 
     subject_ids = [fs.subject_ID for fs in FacultySubject.query.filter_by(faculty_ID=current_user.user_ID).all()]
     questions = Question.query.filter(Question.subject_ID.in_(subject_ids)).all()
@@ -225,7 +239,15 @@ def faculty_dashboard():
     if current_user.department_ID:
         announcements = Announcement.query.filter_by(department_ID=current_user.department_ID).order_by(Announcement.created_at.desc()).all()
 
-    return render_template("faculty_dashboard.html", questions=questions, announcements=announcements)
+    # Get top faculty for leaderboard
+    top_faculty = User.query.filter_by(role='faculty').order_by(User.reputation_points.desc()).limit(5).all()
+
+    return render_template(
+        "faculty_dashboard.html",
+        questions=questions,
+        announcements=announcements,
+        top_faculty=top_faculty
+    )
 
 
 # ---------- STUDENT: VIEW ONLY THEIR OWN QUESTIONS ----------
@@ -281,6 +303,41 @@ def answer_question(question_id):
 
     flash("Answer submitted successfully!", "success")
     return redirect(url_for("dashboard"))
+
+
+# ----------------Delete Question Route---------------
+@app.route('/delete_question/<int:question_id>', methods=['POST'])
+@login_required
+def delete_question(question_id):
+    question = Question.query.get_or_404(question_id)
+    
+    # Only the student who posted the question can delete it
+    if question.student_ID != current_user.user_ID:
+        flash("You can only delete your own questions!", "danger")
+        return redirect(url_for("dashboard"))
+    
+    try:
+        # First get all answer IDs for this question (before deleting)
+        answer_ids = [a.answer_ID for a in Answer.query.filter_by(question_ID=question_id).all()]
+        
+        # Delete all votes on answers of this question
+        if answer_ids:
+            Vote.query.filter(Vote.answer_ID.in_(answer_ids)).delete(synchronize_session=False)
+            Upvote.query.filter(Upvote.answer_ID.in_(answer_ids)).delete(synchronize_session=False)
+        
+        # Delete all answers associated with this question
+        Answer.query.filter_by(question_ID=question_id).delete()
+        
+        # Now delete the question itself
+        db.session.delete(question)
+        db.session.commit()
+        
+        flash("Question deleted successfully!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting question: {str(e)}", "danger")
+    
+    return redirect(url_for("my_questions"))
 
 
 # ----------------upvote route---------------
@@ -392,48 +449,57 @@ def announcements():
     announcements = Announcement.query.filter_by(department_ID=dept_id).order_by(Announcement.created_at.desc()).all()
     return render_template('announcement.html', announcements=announcements)
 
+# -------------Edit Announcement Route------------
+@app.route('/faculty/announcement/<int:announcement_id>/edit', methods=['POST'])
+@login_required
+def edit_announcement(announcement_id):
+    if current_user.role != 'faculty':
+        return jsonify(success=False, message="Access denied"), 403
 
-# # ------------Route for Faculty to Post Announcements
+    announcement = Announcement.query.get_or_404(announcement_id)
+    
+    # Only the faculty who created the announcement or faculty from the same department can edit
+    if announcement.faculty_ID != current_user.user_ID and announcement.department_ID != current_user.department_ID:
+        return jsonify(success=False, message="You don't have permission to edit this announcement"), 403
 
-# @app.route('/faculty/announcement', methods=['GET', 'POST'])
-# @login_required
-# def post_announcement():
-#     if current_user.role != 'faculty':
-#         flash("Access denied!", "danger")
-#         return redirect(url_for('dashboard'))
+    try:
+        data = request.get_json()
+        announcement.title = data.get('title', announcement.title)
+        announcement.content = data.get('content', announcement.content)
+        announcement.updated_at = datetime.now()
+        
+        db.session.commit()
+        return jsonify(success=True)
+    except Exception as e:
+        db.session.rollback()
+        return jsonify(success=False, message=str(e)), 500
 
-#     if request.method == 'POST':
-#         title = request.form['title']
-#         content = request.form['content']
-#         new_announcement = Announcement(
-#             faculty_ID=current_user.user_ID,
-#             department_ID=current_user.department_ID,
-#             title=title,
-#             content=content
-#         )
-#         db.session.add(new_announcement)
-#         db.session.commit()
-#         flash("Announcement posted successfully!", "success")
-#         return redirect(url_for('post_announcement'))
+# -------------Delete Announcement Route------------
+@app.route('/faculty/announcement/<int:announcement_id>/delete', methods=['POST'])
+@login_required
+def delete_announcement(announcement_id):
+    if current_user.role != 'faculty':
+        return jsonify(success=False, message="Access denied"), 403
 
-#     announcements = Announcement.query.filter_by(department_ID=current_user.department_ID).order_by(Announcement.created_at.desc()).all()
-#     return render_template('faculty_announcement.html', announcements=announcements)
+    announcement = Announcement.query.get_or_404(announcement_id)
+    
+    # Only the faculty who created the announcement can delete it
+    if announcement.faculty_ID != current_user.user_ID:
+        return jsonify(success=False, message="You don't have permission to delete this announcement"), 403
+
+    try:
+        db.session.delete(announcement)
+        db.session.commit()
+        return jsonify(success=True)
+    except Exception as e:
+        db.session.rollback()
+        return jsonify(success=False, message=str(e)), 500
 
 
-# # -------------Student View Route(announcements)------------
-# @app.route('/announcements')
-# @login_required
-# def announcements():
-#     announcements = Announcement.query.order_by(Announcement.created_at.desc()).all()
-#     return render_template('announcements.html', announcements=announcements)
 
 
 # ----------------- Run App -----------------
 if __name__ == "__main__":
     app.run(debug=True)
 
-
-
-
-
-
+    
