@@ -1,0 +1,363 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Faculty Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .dashboard-header {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--primary-gradient);
+        }
+
+        .dashboard-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            background: white;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            border: none;
+            padding: 1.5rem 2rem;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .card-header.gradient-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .card-header.gradient-success {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .card-header.gradient-warning {
+            background: var(--warning-gradient);
+            color: white;
+        }
+
+        .card-header.gradient-info {
+            background: var(--info-gradient);
+            color: white;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .announcement-form {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+            box-shadow: 0 4px 15px rgba(86, 171, 47, 0.4);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(86, 171, 47, 0.6);
+        }
+
+        .btn-outline-dark {
+            border: 2px solid #2d3748;
+            color: #2d3748;
+            background: white;
+        }
+
+        .btn-outline-dark:hover {
+            background: #2d3748;
+            color: white;
+        }
+
+        .announcement-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-left: 4px solid #667eea;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .announcement-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .announcement-card h6 {
+            color: #2d3748;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .leaderboard-table {
+            margin: 0;
+        }
+
+        .leaderboard-table thead {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .leaderboard-table th {
+            padding: 1rem;
+            font-weight: 700;
+            color: #2d3748;
+            border: none;
+        }
+
+        .leaderboard-table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .leaderboard-table tr:hover {
+            background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
+        }
+
+        .leaderboard-table .table-warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+            font-weight: 600;
+        }
+
+        .rank-badge {
+            font-size: 1.5rem;
+            display: inline-block;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .badge.bg-warning {
+            background: var(--warning-gradient) !important;
+            color: white !important;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .question-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        }
+
+        .question-card h5 {
+            color: #2d3748;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .answer-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-left: 4px solid #56ab2f;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .answer-box strong {
+            color: #2d3748;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #718096;
+        }
+
+        .empty-state::before {
+            content: "📭";
+            display: block;
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .stats-footer {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1rem;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header h2 {
+                font-size: 1.75rem;
+            }
+
+            .card-header h5 {
+                font-size: 1rem;
+            }
+
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h2>👨‍🏫 Faculty Dashboard</h2>
+        <p class="text-muted mb-0">Manage announcements, answer questions, and track your performance</p>
+    </div>
+
+    <!-- Post Announcement Section -->
+    <div class="card mb-4">
+        <div class="card-header gradient-primary">
+            <h5>📢 Post Department Announcement</h5>
+        </div>
+        <div class="card-body">
+            <div class="announcement-form">
+                <form method="POST">
+                    <div class="mb-3">
+                        <input name="title" class="form-control" placeholder="Enter announcement title..." required>
+                    </div>
+                    <div class="mb-3">
+                        <textarea name="content" class="form-control" placeholder="Write your announcement here..." rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        ✨ Publish Announcement
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Announcements -->
+    {% if announcements %}
+    <div class="card mb-4">
+        <div class="card-header gradient-info">
+            <h5>📌 Recent Department Announcements</h5>
+        </div>
+        <div class="card-body">
+            {% for a in announcements %}
+            <div class="announcement-card">
+                <h6>{{ a.title }}</h6>
+                <p class="text-muted mb-2">{{ a.content }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        🕒 {{ a.created_at.strftime('%d-%m-%Y %H:%M') }}
+                    </small>
+                    {% if a.faculty %}
+                    <small class="text-muted">
+                        👤 {{ a.faculty.username }}
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- Questions section removed as requested -->
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

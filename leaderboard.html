@@ -1,0 +1,562 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Leaderboard - VIT Academic Portal</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Simple VIT Color Variables */
+        :root {
+            --vit-blue: #1e3a8a;
+            --vit-light-blue: #3b82f6;
+            --vit-orange: #f97316;
+            --vit-gold: #fbbf24;
+            --vit-green: #10b981;
+        }
+
+        /* Background with Educational Image */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: 
+                linear-gradient(135deg, rgba(30, 58, 138, 0.85) 0%, rgba(59, 130, 246, 0.85) 100%),
+                url('https://img.freepik.com/free-vector/green-chalkboard-with-school-elements_23-2148181862.jpg') center/cover no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 40px 0;
+        }
+
+        /* Main Container */
+        .leaderboard-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header Section */
+        .leaderboard-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px 24px 0 0;
+            padding: 3rem 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: slideDown 0.8s ease;
+        }
+
+        .leaderboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--vit-orange), var(--vit-gold), var(--vit-orange));
+            background-size: 200% 100%;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .trophy-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--vit-orange), var(--vit-gold));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 3rem;
+            box-shadow: 0 10px 30px rgba(249, 115, 22, 0.3);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+       .leaderboard-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--vit-blue);
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--vit-blue), var(--vit-light-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .leaderboard-subtitle {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        /* Leaderboard Body */
+        .leaderboard-body {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 0 0 24px 24px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-top: none;
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Faculty Card */
+        .faculty-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .faculty-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-color: var(--vit-light-blue);
+        }
+
+        /* Rank Badge */
+        .rank-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.5rem;
+            position: relative;
+        }
+
+        /* Top 3 Special Styling */
+        .rank-1 {
+            background: linear-gradient(135deg, var(--vit-gold), #fde047);
+            color: white;
+            box-shadow: 0 8px 20px rgba(251, 191, 36, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .rank-2 {
+            background: linear-gradient(135deg, #94a3b8, #cbd5e1);
+            color: white;
+            box-shadow: 0 8px 20px rgba(148, 163, 184, 0.4);
+        }
+
+        .rank-3 {
+            background: linear-gradient(135deg, #f97316, #fb923c);
+            color: white;
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4);
+        }
+
+        .rank-other {
+            background: linear-gradient(135deg, var(--vit-blue), var(--vit-light-blue));
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* Crown for Top 3 */
+        .crown {
+            position: absolute;
+            top: -12px;
+            right: -8px;
+            font-size: 1.5rem;
+        }
+
+        .rank-1 .crown { color: var(--vit-gold); }
+        .rank-2 .crown { color: #94a3b8; }
+        .rank-3 .crown { color: var(--vit-orange); }
+
+        /* Faculty Info */
+        .faculty-info {
+            flex: 1;
+            padding: 0 1.5rem;
+        }
+
+        .faculty-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--vit-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .faculty-stats {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        .stat-item i {
+            color: var(--vit-light-blue);
+        }
+
+        /* Reputation Points */
+        .reputation-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--vit-green), #34d399);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            min-width: 120px;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .reputation-number {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .reputation-label {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* No Faculty State */
+        .no-faculty {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .no-faculty-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #d1d5db, #9ca3af);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .no-faculty h3 {
+            color: var(--vit-blue);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .no-faculty p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        /* Stats Summary */
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(30, 58, 138, 0.05));
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-card-icon {
+            font-size: 2rem;
+            color: var(--vit-light-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--vit-blue);
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .leaderboard-container {
+                padding: 0 10px;
+            }
+            
+            .leaderboard-header {
+                padding: 2rem 1.5rem 1.5rem;
+            }
+            
+            .leaderboard-title {
+                font-size: 2rem;
+            }
+            
+            .faculty-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .faculty-info {
+                padding: 0;
+            }
+            
+            .faculty-stats {
+                justify-content: center;
+            }
+            
+            .reputation-badge {
+                margin: 0 auto;
+            }
+
+            .stats-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Staggered Animation Delays */
+        .faculty-card:nth-child(1) { animation-delay: 0.1s; }
+        .faculty-card:nth-child(2) { animation-delay: 0.2s; }
+        .faculty-card:nth-child(3) { animation-delay: 0.3s; }
+        .faculty-card:nth-child(4) { animation-delay: 0.4s; }
+        .faculty-card:nth-child(5) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+
+    <div class="leaderboard-container">
+
+        <!-- Header Section -->
+        <div class="leaderboard-header">
+            <div class="trophy-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <h1 class="leaderboard-title">🏆 Faculty Leaderboard</h1>
+            <p class="leaderboard-subtitle">Top performers ranked by reputation points and contributions</p>
+        </div>
+
+        <!-- Leaderboard Body -->
+        <div class="leaderboard-body">
+
+            <!-- Stats Summary -->
+            {% if faculties %}
+            <div class="stats-summary">
+                <div class="stat-card">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-card-number">{{ faculties|length }}</div>
+                    <div class="stat-card-label">Total Faculty</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-card-number">{{ faculties[0].reputation_points if faculties else 0 }}</div>
+                    <div class="stat-card-label">Top Score</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-card-number">
+                        {{ ((faculties|sum(attribute='reputation_points') / faculties|length)|round|int) if faculties else 0 }}
+                    </div>
+                    <div class="stat-card-label">Average Score</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Faculty List -->
+            {% if faculties %}
+                {% for f in faculties %}
+                <div class="faculty-card" style="display: flex; align-items: center;">
+                    
+                    <!-- Rank Badge -->
+                    <div class="rank-badge {% if loop.index == 1 %}rank-1{% elif loop.index == 2 %}rank-2{% elif loop.index == 3 %}rank-3{% else %}rank-other{% endif %}">
+                        {% if loop.index <= 3 %}
+                            <span class="crown">
+                                {% if loop.index == 1 %}👑
+                                {% elif loop.index == 2 %}🥈
+                                {% elif loop.index == 3 %}🥉
+                                {% endif %}
+                            </span>
+                        {% endif %}
+                        <span>{{ loop.index }}</span>
+                    </div>
+
+                    <!-- Faculty Info -->
+                    <div class="faculty-info">
+                        <div class="faculty-name">
+                            <i class="fas fa-chalkboard-teacher me-2" style="color: var(--vit-light-blue);"></i>
+                            {{ f.username }}
+                        </div>
+                        <div class="faculty-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-building"></i>
+                                <span>Department: {{ f.department.name if f.department else 'N/A' }}</span>
+                            </div>
+                            {% if loop.index <= 3 %}
+                            <div class="stat-item">
+                                <i class="fas fa-medal"></i>
+                                <span>
+                                    {% if loop.index == 1 %}Gold Medalist
+                                    {% elif loop.index == 2 %}Silver Medalist
+                                    {% elif loop.index == 3 %}Bronze Medalist
+                                    {% endif %}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Reputation Badge -->
+                    <div class="reputation-badge">
+                        <div class="reputation-number">{{ f.reputation_points or 0 }}</div>
+                        <div class="reputation-label">Points</div>
+                    </div>
+
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- No Faculty State -->
+                <div class="no-faculty">
+                    <div class="no-faculty-icon">
+                        <i class="fas fa-user-slash"></i>
+                    </div>
+                    <h3>No Faculty Members Yet</h3>
+                    <p>The leaderboard is empty. Faculty members will appear here once they start contributing!</p>
+                </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Simple animations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to faculty cards
+            document.querySelectorAll('.faculty-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Animate numbers counting up (for top score)
+            const statNumbers = document.querySelectorAll('.stat-card-number, .reputation-number');
+            statNumbers.forEach(num => {
+                const finalValue = parseInt(num.textContent);
+                if (finalValue > 0) {
+                    let currentValue = 0;
+                    const increment = Math.ceil(finalValue / 50);
+                    const timer = setInterval(() => {
+                        currentValue += increment;
+                        if (currentValue >= finalValue) {
+                            currentValue = finalValue;
+                            clearInterval(timer);
+                        }
+                        num.textContent = currentValue;
+                    }, 20);
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

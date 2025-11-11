@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join VIT Academic Community - Registration</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --vit-primary: #1e3a8a;
+            --vit-secondary: #3b82f6;
+            --vit-accent: #60a5fa;
+            --vit-orange: #f97316;
+            --vit-gold: #fbbf24;
+            --gradient-primary: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%);
+            --gradient-secondary: linear-gradient(45deg, #f97316 0%, #fbbf24 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: 
+                linear-gradient(135deg, rgba(30, 58, 138, 0.95) 0%, rgba(59, 130, 246, 0.9) 50%, rgba(96, 165, 250, 0.85) 100%),
+                url('https://images.unsplash.com/photo-1523050854058-8df90110c9d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') center/cover;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(249, 115, 22, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(251, 191, 36, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            animation: floatingOrbs 25s ease-in-out infinite;
+        }
+
+        @keyframes floatingOrbs {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+
+        /* Flash Messages */
+        .flash-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            animation: slideDown 0.5s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Registration Container */
+        .registration-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 500px;
+            padding: 0 20px;
+        }
+
+        .registration-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(25px);
+            border-radius: 30px;
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.2),
+                0 15px 30px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 3rem 2.5rem;
+            animation: slideUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .registration-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient-secondary);
+            background-size: 200% 100%;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(50px) scale(0.9); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+
+        /* Header Section */
+        .registration-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .vit-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 70px;
+            height: 70px;
+            background: var(--gradient-primary);
+            border-radius: 18px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px rgba(30, 58, 138, 0.3);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px) rotateY(0deg); }
+            50% { transform: translateY(-8px) rotateY(180deg); }
+        }
+
+        .vit-logo i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .registration-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .registration-subtitle {
+            font-size: 1rem;
+            color: #64748b;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-message {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 1.8rem;
+            position: relative;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label i {
+            color: var(--vit-secondary);
+            font-size: 1rem;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            padding: 1rem 1.25rem;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: auto;
+            min-height: 52px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--vit-secondary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            background: white;
+            outline: none;
+            transform: translateY(-1px);
+        }
+
+        .form-control:hover, .form-select:hover {
+            border-color: var(--vit-accent);
+        }
+
+        /* Role-specific styling */
+        .role-indicator {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .student-indicator {
+            color: #10b981;
+        }
+
+        .faculty-indicator {
+            color: var(--vit-orange);
+        }
+
+        /* Subject Selection Animation */
+        #subjectDiv {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: top;
+            overflow: hidden;
+        }
+
+        #subjectDiv.show {
+            animation: slideInDown 0.4s ease-out;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scaleY(0);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scaleY(1);
+            }
+        }
+
+        /* Button Styling */
+        .btn-register {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: var(--gradient-secondary);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 1rem;
+        }
+
+        .btn-register::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-register:hover::before {
+            left: 100%;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(249, 115, 22, 0.4);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        /* Loading State */
+        .btn-register.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .btn-register.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        .registration-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .registration-footer p {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .registration-footer a {
+            color: var(--vit-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .registration-footer a:hover {
+            color: var(--vit-orange);
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            body {
+                padding: 1rem 0;
+            }
+            
+            .registration-card {
+                margin: 20px;
+                padding: 2rem 1.5rem;
+            }
+            
+            .registration-title {
+                font-size: 1.75rem;
+            }
+            
+            .form-control, .form-select {
+                padding: 0.875rem 1rem;
+            }
+        }
+
+        /* Validation States */
+        .form-control.is-valid, .form-select.is-valid {
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-control.is-invalid, .form-select.is-invalid {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+        }
+
+        /* Fun animations for role selection */
+        .role-animation {
+            animation: roleSwitch 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes roleSwitch {
+            0% { transform: scale(1) rotateY(0deg); }
+            50% { transform: scale(1.05) rotateY(180deg); }
+            100% { transform: scale(1) rotateY(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-container">
+        {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' if category == 'success' else 'info-circle' }} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="registration-container">
+        <div class="registration-card">
+            <!-- Header -->
+            <div class="registration-header">
+                <div class="vit-logo">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h1 class="registration-title">🚀 Join VIT Community</h1>
+                <p class="registration-subtitle">Vishwakarma Institute of Technology, Pune</p>
+                <p class="welcome-message">✨ Start your academic excellence journey today!</p>
+            </div>
+
+            <!-- Registration Form -->
+            <form method="POST" id="registrationForm">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user"></i>
+                        Username
+                    </label>
+                    <input type="text" name="username" class="form-control" placeholder="Enter your unique username" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-lock"></i>
+                        Password
+                    </label>
+                    <input type="password" name="password" class="form-control" placeholder="Create a strong password" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user-tag"></i>
+                        I am a
+                    </label>
+                    <div style="position: relative;">
+                        <select name="role" id="roleSelect" class="form-select" onchange="toggleSubjectDropdown()" required>
+                            <option value="student">🎓 Student</option>
+                            <option value="faculty">👨‍🏫 Faculty Member</option>
+                        </select>
+                        <div class="role-indicator student-indicator" id="roleIndicator">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-building"></i>
+                        Department
+                    </label>
+                    <select name="department_id" class="form-select" required>
+                        {% for dept in departments %}
+                        <option value="{{ dept.department_ID }}">{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Subject selection (only for faculty) -->
+                <div class="form-group" id="subjectDiv" style="display:none;">
+                    <label class="form-label">
+                        <i class="fas fa-book-open"></i>
+                        Expertise Subject
+                    </label>
+                    <select name="subject_id" class="form-select">
+                        {% for subject in subjects %}
+                        <option value="{{ subject.subject_ID }}">{{ subject.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-register" id="registerBtn">
+                    <span class="btn-text">
+                        <i class="fas fa-rocket me-2"></i>🎉 Create Account
+                    </span>
+                </button>
+            </form>
+
+            <!-- Footer -->
+            <div class="registration-footer">
+                <p>Already part of our community? <a href="{{ url_for('login') }}">✨ Sign In Here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Enhanced subject dropdown toggle with animations
+        function toggleSubjectDropdown() {
+            const role = document.getElementById("roleSelect").value;
+            const subjectDiv = document.getElementById("subjectDiv");
+            const roleIndicator = document.getElementById("roleIndicator");
+            const selectElement = document.getElementById("roleSelect");
+            
+            // Add role switch animation
+            selectElement.classList.add('role-animation');
+            setTimeout(() => selectElement.classList.remove('role-animation'), 500);
+            
+            if (role === "faculty") {
+                subjectDiv.style.display = "block";
+                subjectDiv.classList.add('show');
+                
+                // Update role indicator
+                roleIndicator.className = "role-indicator faculty-indicator";
+                roleIndicator.innerHTML = '<i class="fas fa-chalkboard-teacher"></i>';
+                
+                setTimeout(() => {
+                    subjectDiv.style.maxHeight = subjectDiv.scrollHeight + "px";
+                }, 10);
+            } else {
+                subjectDiv.classList.remove('show');
+                subjectDiv.style.maxHeight = "0px";
+                
+                // Update role indicator
+                roleIndicator.className = "role-indicator student-indicator";
+                roleIndicator.innerHTML = '<i class="fas fa-user-graduate"></i>';
+                
+                setTimeout(() => {
+                    subjectDiv.style.display = "none";
+                }, 300);
+            }
+        }
+
+        // Form submission with loading state
+        document.getElementById('registrationForm').addEventListener('submit', function() {
+            const btn = document.getElementById('registerBtn');
+            btn.classList.add('loading');
+            btn.innerHTML = '<span>🚀 Creating Account...</span>';
+        });
+
+        // Form validation animations
+        document.querySelectorAll('.form-control, .form-select').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentElement.classList.remove('focused');
+                }
+            });
+
+            // Real-time validation feedback
+            input.addEventListener('input', function() {
+                if (this.checkValidity()) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            });
+        });
+
+        // Auto-dismiss flash messages
+        setTimeout(function() {
+            document.querySelectorAll('.alert').forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+
+        // Add entrance animations to form elements
+        document.addEventListener('DOMContentLoaded', function() {
+            const formGroups = document.querySelectorAll('.form-group');
+            formGroups.forEach((group, index) => {
+                group.style.opacity = '0';
+                group.style.transform = 'translateY(20px)';
+                group.style.transition = 'all 0.5s ease';
+                
+                setTimeout(() => {
+                    group.style.opacity = '1';
+                    group.style.transform = 'translateY(0)';
+                }, index * 100 + 200);
+            });
+        });
+    </script>
+</body>
+</html>
